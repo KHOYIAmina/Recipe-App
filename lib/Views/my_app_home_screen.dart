@@ -25,8 +25,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
             'category',
             isEqualTo: category,
           );
-  Query get allRecipes =>
-      FirebaseFirestore.instance.collection("Recipe-App");
+  Query get allRecipes => FirebaseFirestore.instance.collection("Recipe-App");
   Query get selectedRecipes =>
       category == "All" ? allRecipes : fileteredRecipes;
 
@@ -133,24 +132,35 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
       stream: categoriesItems.snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
         if (streamSnapshot.hasData) {
+          // Fetch the list of categories
+          var categories = streamSnapshot.data!.docs;
+
+          // Check if "All" exists in the list and move it to the front
+          var allCategory = categories.firstWhere(
+            (doc) => doc['name'] == 'All',
+          );
+
+          // If "All" exists, remove it and place it at the start of the list
+          categories.remove(allCategory);
+          categories.insert(0, allCategory);
+
           return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: List.generate(
-                streamSnapshot.data!.docs.length,
+                categories.length,
                 (index) => GestureDetector(
                   onTap: () {
                     setState(() {
-                      category = streamSnapshot.data!.docs[index]['name'];
+                      category = categories[index]['name'];
                     });
                   },
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(25),
-                      color:
-                          category == streamSnapshot.data!.docs[index]['name']
-                              ? kprimaryColor
-                              : Colors.white,
+                      color: category == categories[index]['name']
+                          ? kprimaryColor
+                          : Colors.white,
                     ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
@@ -158,12 +168,11 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                     ),
                     margin: const EdgeInsets.only(right: 20),
                     child: Text(
-                      streamSnapshot.data!.docs[index]['name'],
+                      categories[index]['name'],
                       style: TextStyle(
-                        color:
-                            category == streamSnapshot.data!.docs[index]['name']
-                                ? Colors.white
-                                : Colors.grey.shade600,
+                        color: category == categories[index]['name']
+                            ? Colors.white
+                            : Colors.grey.shade600,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -173,7 +182,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
             ),
           );
         }
-        // it means if snapshot has date then show the date otherwise show the progress bar
+        // Show a loading spinner if data is still being fetched
         return const Center(
           child: CircularProgressIndicator(),
         );
