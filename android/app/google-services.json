@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "607370286185",
+    "project_id": "mealsapp-cccf5",
+    "storage_bucket": "mealsapp-cccf5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:607370286185:android:8b439204c342b3901efef8",
+        "android_client_info": {
+          "package_name": "com.example.recipe_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBCRsf-IV0nn-_TlZS4ggL5J0I8WUXw9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
