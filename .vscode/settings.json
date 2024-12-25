@@ -1,0 +1,9 @@
+{
+  "dart.flutterHotReloadOnSave": "all",
+  "dart.hotReloadOnSave": "all",
+  "dart.previewHotReloadOnSaveWatcher": true,
+  "dart.flutterGenerateLocalizationsOnSave": "all",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 500,
+  "cmake.ignoreCMakeListsMissing": true
+}

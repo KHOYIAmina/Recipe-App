@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:recipe_app/Provider/favorite_provider.dart';
+import 'package:recipe_app/Provider/notifs_provider.dart';
 import 'package:recipe_app/Provider/quantity.dart';
 import 'package:recipe_app/Utils/constants.dart';
+import 'package:recipe_app/Widget/calendar_dialog.dart';
 import 'package:recipe_app/Widget/my_icon_button.dart';
 import 'package:recipe_app/Widget/quantity_increment_decrement.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final DocumentSnapshot<Object?> documentSnapshot;
@@ -17,18 +20,51 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
+  final NotifsProvider providerNotifs = NotifsProvider();
+
   @override
   void initState() {
-    // initialize base ingredient amounts in the provider
+    super.initState();
     List<double> baseAmounts = widget.documentSnapshot['ingredientsAmount']
         .map<double>((amount) => double.parse(amount.toString()))
         .toList();
     Provider.of<QuantityProvider>(context, listen: false)
         .setBaseIngredientAmounts(baseAmounts);
-    super.initState();
+    initializeDateFormatting();
+    _initializeSelectedDates();
   }
 
-// we have a Spelling mistake that's what we face a error, be carefully, all items name must be same in firebase
+  List<DateTime> selectedDates = [];
+  List<DateTime> selectedDatesAfterNow = [];
+
+  void _showCalendarDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CalendarDialog(
+          recipeId: widget.documentSnapshot.id,
+          onDateSelected: (List<DateTime> selectedDays) async {
+            setState(() {
+              selectedDates = selectedDays;
+            });
+          },
+        );
+      },
+    );
+  }
+
+  void _initializeSelectedDates() async {
+    try {
+      List<DateTime> dates = await providerNotifs
+          .getSelectedDatesForRecipe(widget.documentSnapshot.id);
+      setState(() {
+        selectedDates = dates;
+      });
+    } catch (e) {
+      print('Error initializing selected dates: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = FavoriteProvider.of(context);
@@ -68,8 +104,13 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                           }),
                       const Spacer(),
                       MyIconButton(
-                        icon: Iconsax.notification,
-                        pressed: () {},
+                        icon: selectedDates.isNotEmpty
+                            ? Icons.notifications_active
+                            : Icons.notifications_active_outlined,
+                        color: selectedDates.isNotEmpty
+                            ? kprimaryColor
+                            : Colors.black,
+                        pressed: () => _showCalendarDialog(context),
                       )
                     ],
                   ),
@@ -274,7 +315,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                                 .toList(),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                   const SizedBox(height: 40),
