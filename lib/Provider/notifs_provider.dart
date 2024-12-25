@@ -177,8 +177,7 @@ class NotifsProvider extends ChangeNotifier {
   // Function to fetch all selected dates for a recipe that are after today
   Future<List<DateTime>> getSelectedDatesForRecipe(String recipeId) async {
     try {
-      DateTime today = DateTime.now();
-      DateTime startOfDay = DateTime(today.year, today.month, today.day);
+      DateTime now = DateTime.now();
       var collection = FirebaseFirestore.instance.collection('selected_dates');
       var querySnapshot =
           await collection.where('recipeId', isEqualTo: recipeId).get();
@@ -186,30 +185,14 @@ class NotifsProvider extends ChangeNotifier {
       // Extract dates from the query result
       List<DateTime> selectedDates = querySnapshot.docs
           .map((doc) => (doc['date'] as Timestamp).toDate())
-          .where((date) => date.isAfter(startOfDay))
-          .toList();
-
-      return selectedDates;
-    } catch (e) {
-      print('Error fetching selected dates for recipeId $recipeId: $e');
-      return [];
-    }
-  }
-
-  // Function to fetch all selected dates for a recipe that are before today
-  Future<List<DateTime>> getSelectedBeforeToday(String recipeId) async {
-    try {
-      DateTime today = DateTime.now();
-      DateTime startOfDay = DateTime(today.year, today.month, today.day);
-      var collection = FirebaseFirestore.instance.collection('selected_dates');
-      var querySnapshot =
-          await collection.where('recipeId', isEqualTo: recipeId).get();
-
-      // Extract dates from the query result
-      List<DateTime> selectedDates = querySnapshot.docs
-          .map((doc) => (doc['date'] as Timestamp).toDate())
-          .where((date) => date.isBefore(startOfDay))
-          .toList();
+          .where((date) {
+        // Exclude dates in the past or today with a time earlier than the current time
+        if (date.isBefore(now)) {
+          return false; // Exclude dates that are in the past
+        }
+        return true;
+      }).toList();
+      print('Selected dates for recipeId $recipeId: $selectedDates');
 
       return selectedDates;
     } catch (e) {
@@ -255,7 +238,8 @@ class NotifsProvider extends ChangeNotifier {
             results.add({
               'date': dateEntry['date'], // The selected date
               'id': recipeDoc.id, // Recipe ID
-              'recipeSnapshot': recipeDoc, // The DocumentSnapshot for the recipe
+              'recipeSnapshot':
+                  recipeDoc, // The DocumentSnapshot for the recipe
               ...recipeData, // Spread the recipe data into the map
             });
           }

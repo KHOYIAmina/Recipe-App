@@ -203,64 +203,43 @@ class _CalendarDialogState extends State<CalendarDialog> {
                   ),
                 ),
                 calendarBuilders: CalendarBuilders(
-                  selectedBuilder: (context, day, focusedDay) {
-                    return FutureBuilder<bool>(
-                      future: _changeEtatOfCooking(day),
-                      builder: (context, snapshot) {
-                        bool isCooking = snapshot.data ?? false;
-                        DateTime startOfDay =
-                            DateTime(day.year, day.month, day.day);
+                    selectedBuilder: (context, day, focusedDay) {
+                  return FutureBuilder<bool>(
+                    future: _changeEtatOfCooking(day),
+                    builder: (context, snapshot) {
+                      bool isCooking = snapshot.data ?? false;
+                      DateTime now = DateTime.now();
+                      DateTime startOfDay =
+                          DateTime(day.year, day.month, day.day);
+                      DateTime selectedDateTime = DateTime(
+                          day.year, day.month, day.day, day.hour, day.minute);
+                      print(focusedDay);
+                      bool isToday = startOfDay.year == now.year &&
+                          startOfDay.month == now.month &&
+                          startOfDay.day == now.day;
 
-                        bool isBeforeToday = startOfDay.isBefore(DateTime(
-                          DateTime.now().year,
-                          DateTime.now().month,
-                          DateTime.now().day,
-                        ));
+                      var dateWithTime = {_tempSelectedDays[0]};
 
-                        bool isSelectedDate = _tempSelectedDays.any(
-                          (selectedDate) => isSameDay(selectedDate, startOfDay),
-                        );
+                      // Check if the selected time (today) is in the future
+                      bool isFutureTime = (dateWithTime.first.hour > now.hour ||
+                          (dateWithTime.first.hour == now.hour &&
+                              dateWithTime.first.hour > now.minute));
+                      print(isFutureTime);
+                      print(
+                          'isFutureTime: $isFutureTime, selectedDateTime.hour: ${selectedDateTime.hour}, now.hour: ${now.hour}');
+                      bool isBeforeToday = startOfDay
+                          .isBefore(DateTime(now.year, now.month, now.day));
+                      bool isSelectedDate = _tempSelectedDays.any(
+                          (selectedDate) =>
+                              isSameDay(selectedDate, startOfDay));
 
-                        if (isBeforeToday && isSelectedDate) {
-                          return Container(
-                            margin: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isCooking ? Colors.green : Colors.red,
-                                width: 2,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              '${day.day}',
-                              style: const TextStyle(color: Colors.grey),
-                            ),
-                          );
-                        }
-
-                        if (isBeforeToday) {
-                          return Container(
-                            margin: const EdgeInsets.all(6),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: kprimaryColor,
-                                width: 2,
-                              ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              '${day.day}',
-                              style: TextStyle(color: Colors.grey.shade700),
-                            ),
-                          );
-                        }
-
+                      // Case: Today and in the future
+                      if (isToday && isFutureTime) {
                         return Container(
                           margin: const EdgeInsets.all(6),
                           decoration: const BoxDecoration(
-                            color: kprimaryColor,
+                            color:
+                                kprimaryColor, // Highlight future time today with kprimaryColor
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
@@ -269,10 +248,66 @@ class _CalendarDialogState extends State<CalendarDialog> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         );
-                      },
-                    );
-                  },
-                ),
+                      }
+
+                      // Case: Today but passed (before now)
+                      if (isBeforeToday ||
+                          (isToday && selectedDateTime.isBefore(now))) {
+                        return Container(
+                          margin: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color.fromRGBO(158, 158, 158, 1),
+                            border: Border.all(
+                              color: isCooking ? Colors.green : Colors.red,
+                              width: 2,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${day.day}',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        );
+                      }
+
+                      // Case: Selected date, before today or time
+                      if (isBeforeToday ||
+                          (isToday && selectedDateTime.isBefore(now)) &&
+                              isSelectedDate) {
+                        return Container(
+                          margin: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isCooking ? Colors.green : Colors.red,
+                              width: 2,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${day.day}',
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      }
+
+                      // Default case for selectable dates
+                      return Container(
+                        margin: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: kprimaryColor,
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${day.day}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      );
+                    },
+                  );
+                }),
                 selectedDayPredicate: (day) {
                   return _tempSelectedDays
                       .any((selectedDate) => isSameDay(selectedDate, day));
@@ -285,27 +320,21 @@ class _CalendarDialogState extends State<CalendarDialog> {
                           .any((selectedDate) => isSameDay(selectedDate, day));
                 },
                 onDaySelected: (selectedDay, focusedDay) async {
-                  if (selectedDay.isAfter(
-                    DateTime.now().subtract(const Duration(days: 1)),
-                  )) {
+                  setState(() {
+                    _focusedDay = focusedDay;
+                  });
+
+                  final alreadySelected =
+                      _tempSelectedDays.any((d) => isSameDay(d, selectedDay));
+
+                  if (alreadySelected) {
                     setState(() {
-                      _focusedDay = focusedDay;
+                      _tempSelectedDays
+                          .removeWhere((d) => isSameDay(d, selectedDay));
                     });
-
-                    final alreadySelected =
-                        _tempSelectedDays.any((d) => isSameDay(d, selectedDay));
-
-                    if (alreadySelected) {
-                      // Si la date est déjà sélectionnée, on la retire.
-                      setState(() {
-                        _tempSelectedDays
-                            .removeWhere((d) => isSameDay(d, selectedDay));
-                      });
-                      _removeDateFromFirebase(selectedDay);
-                    } else {
-                      // Lancer le sélecteur d'heure avant d'ajouter la date.
-                      await _selectTime(context, selectedDay);
-                    }
+                    _removeDateFromFirebase(selectedDay);
+                  } else {
+                    await _selectTime(context, selectedDay);
                   }
                 },
                 onPageChanged: (focusedDay) {
