@@ -195,7 +195,7 @@ class _CartMealState extends State<CartMeal> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => RecipeDetailScreen(
-                                      documentSnapshot: meal['recipeSnapshot']),
+                                      documentSnapshot: meal['recipeSnapshot'], previousPage: 'CartMeal'),
                                 ),
                               );
                             },

@@ -17,7 +17,8 @@ class FoodItemsDisplay extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) =>
-                RecipeDetailScreen(documentSnapshot: documentSnapshot),
+                RecipeDetailScreen(documentSnapshot: documentSnapshot, previousPage: 'FoodItems',),
+                
           ),
         );
       },

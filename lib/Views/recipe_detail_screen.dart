@@ -13,7 +13,12 @@ import 'package:intl/date_symbol_data_local.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final DocumentSnapshot<Object?> documentSnapshot;
-  const RecipeDetailScreen({super.key, required this.documentSnapshot});
+  final String previousPage;
+  const RecipeDetailScreen({
+    super.key,
+    required this.documentSnapshot,
+    required this.previousPage,
+  });
 
   @override
   State<RecipeDetailScreen> createState() => _RecipeDetailScreenState();
@@ -225,7 +230,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Infredients",
+                            "Ingredients",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
