@@ -19,16 +19,15 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        centerTitle: true,
-        title: const Text(
-          "Favorites",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          centerTitle: true,
+          title: const Text(
+            "Favorites",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-      ),
-     
+          automaticallyImplyLeading: false),
       body: favoriteItems.isEmpty
           ? const Center(
               child: Text(

@@ -6,6 +6,7 @@ class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Get the current user
+
   User? getCurrentUser() {
     return _auth.currentUser;
   }
@@ -13,6 +14,16 @@ class UserService {
   Future<void> createUser(String userId, Map<String, dynamic> data) async {
     await _firestore.collection('users').doc(userId).set(data);
   }
+
+Future<bool> isUser(String userId) async {
+  try {
+    final docSnapshot = await _firestore.collection('users').doc(userId).get();
+    return docSnapshot.exists; // Returns true if the document exists, otherwise false
+  } catch (e) {
+    // Handle any potential errors, optionally log them
+    throw Exception('Error checking user existence: $e');
+  }
+}
 
   Future<void> updateUser(String userId, Map<String, dynamic> data) async {
     await _firestore.collection('users').doc(userId).update(data);

@@ -29,12 +29,22 @@ class _SignupPageState extends State<SignupPage> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      await _authService.signInWithGoogle();
+      final userCredential = await _authService.signInWithGoogle();
       if (mounted) {
         Navigator.push(
           (context),
           MaterialPageRoute(builder: (context) => const AppMainScreen()),
         );
+
+        // Créer un document utilisateur dans Firestore
+
+        if (!await _userService.isUser(userCredential.user!.uid)) {
+          await _userService.createUser(userCredential.user!.uid, {
+            'email': userCredential.user!.email,
+            'username': userCredential.user!.email?.split('@').first,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
       }
     } catch (e) {
       throw Exception(e.toString());

@@ -6,6 +6,8 @@ import 'package:recipe_app/Widget/auth/auth_button.dart';
 import 'package:recipe_app/Widget/auth/auth_social.dart';
 import 'package:recipe_app/Widget/auth/auth_textfield.dart';
 import 'package:recipe_app/services/auth_service.dart';
+import 'package:recipe_app/services/user_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key});
@@ -20,18 +22,29 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   final AuthService _authService = AuthService();
+  final UserService _userService = UserService();
 
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
 
   Future<void> _signInWithGoogle() async {
     try {
-      await _authService.signInWithGoogle();
+      final userCredential = await _authService.signInWithGoogle();
       if (mounted) {
         Navigator.push(
           (context),
           MaterialPageRoute(builder: (context) => const AppMainScreen()),
         );
+
+        // Créer un document utilisateur dans Firestore
+
+        if (!await _userService.isUser(userCredential.user!.uid)) {
+          await _userService.createUser(userCredential.user!.uid, {
+            'email': userCredential.user!.email,
+            'username': userCredential.user!.email?.split('@').first,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
       }
     } catch (e) {
       throw Exception(e.toString());

@@ -44,7 +44,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    headerParts(),
+                    headerParts('walid'),
                     mySearchBar(),
                     // for banner
                     const BannerToExplore(),
@@ -214,21 +214,29 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
     );
   }
 
-  Row headerParts() {
+  Row headerParts(String username) {
     return Row(
       children: [
-        const Text(
-          "What are you\ncooking today?",
-          style: TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            height: 1,
-          ),
-        ),
-        const Spacer(),
-        MyIconButton(
-          icon: Iconsax.notification,
-          pressed: () {},
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Welcome back $username",
+              style: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                height: 1,
+              ),
+            ),
+            Text(
+              "What are you cooking today?",
+              style: TextStyle(
+                fontSize: 20,
+                // height: 1,
+                color: Colors.grey.shade600,
+              ),
+            ),
+          ],
         ),
       ],
     );

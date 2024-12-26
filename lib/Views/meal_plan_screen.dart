@@ -47,15 +47,15 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          centerTitle: true,
-          title: const Text(
-            "Meal Plan",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            centerTitle: true,
+            title: const Text(
+              "Meal Plan",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ),
+            automaticallyImplyLeading: false),
         body: Container(
           color: Theme.of(context).colorScheme.surface,
           child: Column(
@@ -81,13 +81,13 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         ),
                         Text(
                           getWeekRange(),
-                          style:  TextStyle(
+                          style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.primary),
                         ),
                         IconButton(
-                          icon:  Icon(
+                          icon: Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
                             color: Theme.of(context).colorScheme.primary,
@@ -138,7 +138,8 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
                                 shape: const CircleBorder(),
                                 padding: const EdgeInsets.all(5),
                               ),
