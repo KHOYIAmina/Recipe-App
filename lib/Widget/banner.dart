@@ -1,9 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:recipe_app/Utils/constants.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 
-class BannerToExplore extends StatelessWidget {
+class BannerToExplore extends StatefulWidget {
   const BannerToExplore({super.key});
+
+  @override
+  State<BannerToExplore> createState() => _BannerToExploreState();
+}
+
+class _BannerToExploreState extends State<BannerToExplore> {
+  Map<String, dynamic>? recent;
+  NotifsService notifsService = NotifsService();
+  @override
+  void initState() {
+    super.initState();
+    fetchAndPrintMostRecentDate();
+  }
+
+  void fetchAndPrintMostRecentDate() async {
+    try {
+      List<Map<String, dynamic>>? mostRecent =
+          await notifsService.fetchMostRecentDateWithRecipe();
+      recent = mostRecent.first;
+      print(recent);
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,27 +39,29 @@ class BannerToExplore extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         color: kBannerColor,
         image: DecorationImage(
-            image: const AssetImage('assets/images/ramen-noodles.jpg'),
+            image: NetworkImage(
+              recent?['image'], // image from firestore
+            ),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(
                 Theme.of(context).colorScheme.primary, BlendMode.overlay),
             opacity: 0.2,
             alignment: Alignment.topRight),
       ),
-      child: const Padding(
-        padding: EdgeInsets.all(12.0),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Your Next Meal.',
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 32,
                   fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
             SizedBox(
               width: double.infinity,
               child: Row(
@@ -44,43 +71,43 @@ class BannerToExplore extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Ramen Noodles',
-                          style: TextStyle(
+                          recent?['name'],
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
                               fontWeight: FontWeight.w500),
                         ),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Iconsax.flash_1,
                               size: 20,
                               color: Colors.white,
                             ),
                             Text(
-                              "140 Cal",
-                              style: TextStyle(
+                              "${recent?['cal']} Cal",
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.white,
                               ),
                             ),
-                            Text(
+                            const Text(
                               " · ",
                               style: TextStyle(
                                 fontWeight: FontWeight.w900,
                                 color: Colors.white,
                               ),
                             ),
-                            Icon(
+                            const Icon(
                               Iconsax.clock,
                               size: 20,
                               color: Colors.white,
                             ),
-                            SizedBox(width: 5),
+                            const SizedBox(width: 5),
                             Text(
-                              "1 Min",
-                              style: TextStyle(
+                              "${recent?['time']} Min",
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.white,
@@ -94,15 +121,15 @@ class BannerToExplore extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '13/26/2024',
-                          style: TextStyle(
+                          recent?['dateRecipe'],
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                           ),
                         ),
                         Text(
-                          '06:00',
-                          style: TextStyle(
+                          recent?['timeRecipe'],
+                          style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,

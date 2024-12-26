@@ -1,26 +1,123 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-class NotifsProvider extends ChangeNotifier {
+class NotifsService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   final List<Map<String, dynamic>> _notifications = [];
   List<Map<String, dynamic>> get notifications => _notifications;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? userId;
 
-  // Function to format DateTime to a string with milliseconds
+  NotifsService() {
+    userId = _auth.currentUser?.uid;
+    print(userId);
+  }
+
   String formatDateWithMilliseconds(DateTime date) {
     var formatter = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
     return formatter.format(date);
+  }
+
+  String formatTime(DateTime dateTime) {
+    int hour = dateTime.hour;
+    int minute = dateTime.minute;
+
+    // Ensure that the hour doesn't exceed 23
+    if (hour >= 24) {
+      hour = 23; // Cap the hour to 23
+    }
+
+    return "${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}";
+  }
+
+  Future<List<Map<String, dynamic>>> fetchMostRecentDateWithRecipe() async {
+    try {
+      DateTime now = DateTime.now();
+      var collectionDates =
+          FirebaseFirestore.instance.collection('selected_dates');
+      var collectionRecipes =
+          FirebaseFirestore.instance.collection('Recipe-App');
+
+      var querySnapshot =
+          await collectionDates.where('userId', isEqualTo: userId).get();
+
+      if (querySnapshot.docs.isEmpty) {
+        return [];
+      }
+
+      // Convert Firestore timestamps to DateTime objects
+      List<Map<String, dynamic>> selectedDatesWithRecipeData = [];
+
+      // List to hold the selected dates along with their recipe IDs
+      List<Map<String, dynamic>> selectedDates = querySnapshot.docs.map((doc) {
+        var recipeId = doc['recipeId'];
+        var recipeDoc = collectionRecipes.doc(recipeId).get();
+
+        DateTime date = (doc['date'] as Timestamp).toDate();
+
+        return {
+          'date': date, // Store DateTime directly
+          'recipeId': doc['recipeId'],
+        };
+      }).toList();
+
+      // Sort the selected dates to get the one closest to the current date and time
+      selectedDates.sort((a, b) {
+        int diffA = a['date'].isBefore(now)
+            ? now.difference(a['date']).inMilliseconds
+            : a['date'].difference(now).inMilliseconds;
+
+        int diffB = b['date'].isBefore(now)
+            ? now.difference(b['date']).inMilliseconds
+            : b['date'].difference(now).inMilliseconds;
+
+        return diffA.compareTo(diffB);
+      });
+
+      // Fetch the recipe data for the closest date
+      if (selectedDates.isNotEmpty) {
+        // Get the closest date's recipe ID
+        String closestRecipeId = selectedDates.first['recipeId'];
+
+        // Fetch the recipe document from Firestore without checking existence
+        var recipeDoc = await collectionRecipes.doc(closestRecipeId).get();
+
+        // Directly fetch the recipe data assuming the document exists
+        var recipeData = recipeDoc.data();
+        DateTime dateTime = selectedDates.first['date'];
+        String datePart = "${dateTime.year}-${dateTime.month}-${dateTime.day}";
+        String timePart =
+            "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+        print('Date: $datePart, Time: $timePart');
+        if (recipeData != null) {
+          selectedDatesWithRecipeData.add({
+            'dateRecipe': datePart, // The closest date (DateTime)
+            'timeRecipe': timePart,
+            ...recipeData, // The recipe data (Map<String, dynamic>)
+          });
+        }
+      }
+
+      return selectedDatesWithRecipeData;
+    } catch (e) {
+      print('Error getting closest date and recipe data: $e');
+      return [];
+    }
   }
 
   // Function to check if a recipe is already selected based on its recipeId
   Future<bool> isRecipeSelected(String recipeId) async {
     try {
       var collection = _firestore.collection('selected_dates');
-      var querySnapshot =
-          await collection.where('recipeId', isEqualTo: recipeId).get();
+
+      var querySnapshot = await collection
+          .where('recipeId', isEqualTo: recipeId)
+          .where('userId', isEqualTo: userId)
+          .get();
       return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       print('Error checking if recipe is selected: $e');
@@ -52,8 +149,10 @@ class NotifsProvider extends ChangeNotifier {
     try {
       var collection = FirebaseFirestore.instance.collection('selected_dates');
 
-      var querySnapshot =
-          await collection.where('recipeId', isEqualTo: recipeId).get();
+      var querySnapshot = await collection
+          .where('recipeId', isEqualTo: recipeId)
+          .where('userId', isEqualTo: userId)
+          .get();
 
       if (querySnapshot.docs.isEmpty) {
         print('No document found for recipeId $recipeId');
@@ -89,8 +188,10 @@ class NotifsProvider extends ChangeNotifier {
     try {
       var collection = FirebaseFirestore.instance.collection('selected_dates');
 
-      var querySnapshot =
-          await collection.where('recipeId', isEqualTo: recipeId).get();
+      var querySnapshot = await collection
+          .where('recipeId', isEqualTo: recipeId)
+          .where('userId', isEqualTo: userId)
+          .get();
 
       if (querySnapshot.docs.isEmpty) {
         print('No documents found for recipeId $recipeId');
@@ -129,6 +230,7 @@ class NotifsProvider extends ChangeNotifier {
     var collection = FirebaseFirestore.instance.collection('selected_dates');
     await collection
         .where('recipeId', isEqualTo: recipeId)
+        .where('userId', isEqualTo: userId)
         .get()
         .then((snapshot) {
       // Delete existing documents for the recipeId
@@ -140,6 +242,7 @@ class NotifsProvider extends ChangeNotifier {
     // Add new selected dates to Firestore
     for (var date in selectedDates) {
       await collection.add({
+        'userId': userId,
         'recipeId': recipeId,
         'date': Timestamp.fromDate(date),
         'isCooking': false,
@@ -154,8 +257,10 @@ class NotifsProvider extends ChangeNotifier {
       DateTime startOfDay = DateTime(date.year, date.month, date.day);
 
       var collection = FirebaseFirestore.instance.collection('selected_dates');
-      var querySnapshot =
-          await collection.where('recipeId', isEqualTo: recipeId).get();
+      var querySnapshot = await collection
+          .where('recipeId', isEqualTo: recipeId)
+          .where('userId', isEqualTo: userId)
+          .get();
 
       for (var doc in querySnapshot.docs) {
         var timestamp = (doc['date'] as Timestamp).toDate();
@@ -179,8 +284,10 @@ class NotifsProvider extends ChangeNotifier {
     try {
       DateTime now = DateTime.now();
       var collection = FirebaseFirestore.instance.collection('selected_dates');
-      var querySnapshot =
-          await collection.where('recipeId', isEqualTo: recipeId).get();
+      var querySnapshot = await collection
+          .where('recipeId', isEqualTo: recipeId)
+          .where('userId', isEqualTo: userId)
+          .get();
 
       // Extract dates from the query result
       List<DateTime> selectedDates = querySnapshot.docs
@@ -192,6 +299,7 @@ class NotifsProvider extends ChangeNotifier {
         }
         return true;
       }).toList();
+
       print('Selected dates for recipeId $recipeId: $selectedDates');
 
       return selectedDates;
@@ -213,6 +321,7 @@ class NotifsProvider extends ChangeNotifier {
 
     // Query to fetch selected dates within the given date range
     var querySnapshot = await collectionDates
+        .where('userId', isEqualTo: userId)
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay))
         .where('date', isLessThan: Timestamp.fromDate(endOfDay))
         .get();
@@ -238,6 +347,7 @@ class NotifsProvider extends ChangeNotifier {
             results.add({
               'date': dateEntry['date'], // The selected date
               'id': recipeDoc.id, // Recipe ID
+              'userId': userId,
               'recipeSnapshot':
                   recipeDoc, // The DocumentSnapshot for the recipe
               ...recipeData, // Spread the recipe data into the map
@@ -255,6 +365,7 @@ class NotifsProvider extends ChangeNotifier {
     var collection = FirebaseFirestore.instance.collection('selected_dates');
     var timestamp = Timestamp.fromDate(date);
     var querySnapshot = await collection
+        .where('userId', isEqualTo: userId)
         .where('recipeId', isEqualTo: recipeId)
         .where('date', isEqualTo: timestamp)
         .get();
@@ -270,8 +381,8 @@ class NotifsProvider extends ChangeNotifier {
   }
 
   // Helper function to access the NotifsProvider within the widget tree
-  NotifsProvider of(BuildContext context, {bool listen = true}) {
-    return Provider.of<NotifsProvider>(
+  NotifsService of(BuildContext context, {bool listen = true}) {
+    return Provider.of<NotifsService>(
       context,
       listen: listen,
     );

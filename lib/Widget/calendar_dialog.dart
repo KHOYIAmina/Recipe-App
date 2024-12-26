@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/notifs_provider.dart';
 import 'package:recipe_app/Utils/constants.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +23,7 @@ class _CalendarDialogState extends State<CalendarDialog> {
   late List<DateTime> _tempSelectedDays;
   late List<DateTime> _datesBeforeToday;
   DateTime _focusedDay = DateTime.now();
-  final NotifsProvider providerNotifs = NotifsProvider();
+  final NotifsService providerNotifs = NotifsService();
 
   @override
   void initState() {
@@ -173,7 +173,7 @@ class _CalendarDialogState extends State<CalendarDialog> {
                 firstDay: DateTime.utc(2000, 1, 1),
                 lastDay: DateTime.utc(2025, 12, 31),
                 focusedDay: _focusedDay,
-                headerStyle:  HeaderStyle(
+                headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: TextStyle(
@@ -181,18 +181,18 @@ class _CalendarDialogState extends State<CalendarDialog> {
                     color: Theme.of(context).colorScheme.primary,
                     fontSize: 20,
                   ),
-                  leftChevronIcon:  Icon(
+                  leftChevronIcon: Icon(
                     Icons.arrow_left,
                     color: Theme.of(context).colorScheme.primary,
                     size: 30,
                   ),
-                  rightChevronIcon:  Icon(
+                  rightChevronIcon: Icon(
                     Icons.arrow_right,
                     color: Theme.of(context).colorScheme.primary,
                     size: 30,
                   ),
                 ),
-                calendarStyle:  CalendarStyle(
+                calendarStyle: CalendarStyle(
                   todayDecoration: const BoxDecoration(
                     color: Colors.grey,
                     shape: BoxShape.circle,
@@ -237,9 +237,10 @@ class _CalendarDialogState extends State<CalendarDialog> {
                       if (isToday && isFutureTime) {
                         return Container(
                           margin: const EdgeInsets.all(6),
-                          decoration:  BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.primary, // Highlight future time today with kprimaryColor
+                          decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary, // Highlight future time today with kprimaryColor
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
@@ -379,7 +380,7 @@ class _CalendarDialogState extends State<CalendarDialog> {
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                     ),
-                    child:  Text(
+                    child: Text(
                       "Cancel",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,

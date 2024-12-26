@@ -6,6 +6,7 @@ import 'package:recipe_app/Widget/food_items_display.dart';
 import 'package:recipe_app/Widget/my_icon_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
   const MyAppHomeScreen({super.key});
@@ -16,6 +17,7 @@ class MyAppHomeScreen extends StatefulWidget {
 
 class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
   String category = "All";
+
   // for category
   final CollectionReference categoriesItems =
       FirebaseFirestore.instance.collection("App-Category");

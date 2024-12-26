@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/services/user_service.dart';
 
-class FavoriteProvider extends ChangeNotifier {
+class FavoriteService extends ChangeNotifier {
   List<String> _favoriteIds = [];
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -99,8 +99,8 @@ class FavoriteProvider extends ChangeNotifier {
   }
 
   // Static method to access the provider from any context
-  static FavoriteProvider of(BuildContext context, {bool listen = true}) {
-    return Provider.of<FavoriteProvider>(
+  static FavoriteService of(BuildContext context, {bool listen = true}) {
+    return Provider.of<FavoriteService>(
       context,
       listen: listen,
     );

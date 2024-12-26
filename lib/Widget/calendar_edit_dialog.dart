@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/notifs_provider.dart';
 import 'package:recipe_app/Utils/constants.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -26,7 +26,7 @@ class CalendarEditDialog extends StatefulWidget {
 class _CalendarDialogState extends State<CalendarEditDialog> {
   late DateTime _selectedDay;
   DateTime _focusedDay = DateTime.now();
-  final NotifsProvider providerNotifs = NotifsProvider();
+  final NotifsService providerNotifs = NotifsService();
 
   @override
   void initState() {
@@ -136,7 +136,7 @@ class _CalendarDialogState extends State<CalendarEditDialog> {
                     size: 30,
                   ),
                 ),
-                calendarStyle:  CalendarStyle(
+                calendarStyle: CalendarStyle(
                   todayDecoration: const BoxDecoration(
                     color: Colors.grey,
                     shape: BoxShape.circle,
@@ -150,7 +150,7 @@ class _CalendarDialogState extends State<CalendarEditDialog> {
                   selectedBuilder: (context, day, focusedDay) {
                     return Container(
                       margin: const EdgeInsets.all(6),
-                      decoration:  BoxDecoration(
+                      decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primary,
                         shape: BoxShape.circle,
                       ),

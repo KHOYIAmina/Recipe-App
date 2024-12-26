@@ -2,13 +2,13 @@ import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:recipe_app/Provider/notifs_provider.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:recipe_app/Utils/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:lottie/lottie.dart';
 import 'package:recipe_app/Views/recipe_detail_screen.dart';
 import 'package:recipe_app/Widget/date_validator.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CartMeal extends StatefulWidget {
@@ -21,14 +21,14 @@ class CartMeal extends StatefulWidget {
 }
 
 class _CartMealState extends State<CartMeal> {
-  final NotifsProvider providerNotifs = NotifsProvider();
+  final NotifsService providerNotifs = NotifsService();
   void refreshParent() {
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    final NotifsProvider providerNotifs = NotifsProvider();
+    final NotifsService providerNotifs = NotifsService();
 
     // Function to get the appropriate icon for each category
     IconData getCategoryIcon(String category) {
