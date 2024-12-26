@@ -32,7 +32,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kbackgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -159,7 +159,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(25),
                       color: category == categories[index]['name']
-                          ? kprimaryColor
+                          ? Theme.of(context).colorScheme.primary
                           : Colors.white,
                     ),
                     padding: const EdgeInsets.symmetric(

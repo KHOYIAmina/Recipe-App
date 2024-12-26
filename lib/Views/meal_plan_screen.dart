@@ -47,7 +47,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: kbackgroundColor,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           centerTitle: true,
           title: const Text(
             "Meal Plan",
@@ -57,7 +57,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
           ),
         ),
         body: Container(
-          color: kbackgroundColor,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(
             children: [
               Container(
@@ -72,7 +72,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                             Icons.arrow_back_ios,
                             size: 16,
                             color: _startOfWeek.isAfter(DateTime.now())
-                                ? kprimaryColor
+                                ? Theme.of(context).colorScheme.primary
                                 : Colors.grey,
                           ),
                           onPressed: _startOfWeek.isAfter(DateTime.now())
@@ -81,16 +81,16 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         ),
                         Text(
                           getWeekRange(),
-                          style: const TextStyle(
+                          style:  TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: kprimaryColor),
+                              color: Theme.of(context).colorScheme.primary),
                         ),
                         IconButton(
-                          icon: const Icon(
+                          icon:  Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
-                            color: kprimaryColor,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           onPressed: _nextWeek,
                         ),
@@ -105,7 +105,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                         height: 100,
                         width: 74,
                         initialSelectedDate: DateTime.now(),
-                        selectionColor: kprimaryColor,
+                        selectionColor: Theme.of(context).colorScheme.primary,
                         selectedTextColor: Colors.white,
                         dateTextStyle: ThemeScreen.calendarStyle(size: 20),
                         dayTextStyle: ThemeScreen.calendarStyle(size: 16),
@@ -138,7 +138,7 @@ class _MealPlanScreenState extends State<MealPlanScreen> {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: kprimaryColor,
+                                backgroundColor: Theme.of(context).colorScheme.primary,
                                 shape: const CircleBorder(),
                                 padding: const EdgeInsets.all(5),
                               ),

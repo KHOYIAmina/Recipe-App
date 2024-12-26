@@ -113,7 +113,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ? Icons.notifications_active
                             : Icons.notifications_active_outlined,
                         color: selectedDates.isNotEmpty
-                            ? kprimaryColor
+                            ? Theme.of(context).colorScheme.primary
                             : Colors.black,
                         pressed: () => _showCalendarDialog(context),
                       )
@@ -343,7 +343,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
         children: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-                backgroundColor: kprimaryColor,
+                backgroundColor: Theme.of(context).colorScheme.primary,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 100, vertical: 13),
                 foregroundColor: Colors.white),

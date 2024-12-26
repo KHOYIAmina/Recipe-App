@@ -173,32 +173,32 @@ class _CalendarDialogState extends State<CalendarDialog> {
                 firstDay: DateTime.utc(2000, 1, 1),
                 lastDay: DateTime.utc(2025, 12, 31),
                 focusedDay: _focusedDay,
-                headerStyle: const HeaderStyle(
+                headerStyle:  HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 20,
                   ),
-                  leftChevronIcon: Icon(
+                  leftChevronIcon:  Icon(
                     Icons.arrow_left,
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 30,
                   ),
-                  rightChevronIcon: Icon(
+                  rightChevronIcon:  Icon(
                     Icons.arrow_right,
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 30,
                   ),
                 ),
-                calendarStyle: const CalendarStyle(
-                  todayDecoration: BoxDecoration(
+                calendarStyle:  CalendarStyle(
+                  todayDecoration: const BoxDecoration(
                     color: Colors.grey,
                     shape: BoxShape.circle,
                   ),
                   selectedDecoration: BoxDecoration(
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -237,9 +237,9 @@ class _CalendarDialogState extends State<CalendarDialog> {
                       if (isToday && isFutureTime) {
                         return Container(
                           margin: const EdgeInsets.all(6),
-                          decoration: const BoxDecoration(
+                          decoration:  BoxDecoration(
                             color:
-                                kprimaryColor, // Highlight future time today with kprimaryColor
+                                Theme.of(context).colorScheme.primary, // Highlight future time today with kprimaryColor
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
@@ -295,8 +295,8 @@ class _CalendarDialogState extends State<CalendarDialog> {
                       // Default case for selectable dates
                       return Container(
                         margin: const EdgeInsets.all(6),
-                        decoration: const BoxDecoration(
-                          color: kprimaryColor,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
@@ -355,7 +355,7 @@ class _CalendarDialogState extends State<CalendarDialog> {
                       _saveSelectedDatesToFirebase();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kprimaryColor,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 5,
@@ -379,12 +379,12 @@ class _CalendarDialogState extends State<CalendarDialog> {
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child:  Text(
                       "Cancel",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 17,
-                        color: kprimaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),

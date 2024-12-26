@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:recipe_app/Utils/constants.dart';
+import 'package:recipe_app/Views/auth/login_screen.dart';
 import 'package:recipe_app/Views/favorite_screen.dart';
 import 'package:recipe_app/Views/meal_plan_screen.dart';
 import 'package:recipe_app/Views/my_app_home_screen.dart';
@@ -21,7 +24,6 @@ class _AppMainScreenState extends State<AppMainScreen> {
       const MyAppHomeScreen(),
       const FavoriteScreen(),
       const MealPlanScreen(),
-      navBarPage(Iconsax.setting_21),
     ];
 
     super.initState();
@@ -36,21 +38,54 @@ class _AppMainScreenState extends State<AppMainScreen> {
         elevation: 0,
         iconSize: 28,
         currentIndex: selectedIndex,
-        selectedItemColor: kprimaryColor,
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.secondary,
         type: BottomNavigationBarType.fixed,
-        selectedLabelStyle: const TextStyle(
-          color: kprimaryColor,
+        selectedLabelStyle: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
           fontWeight: FontWeight.w600,
         ),
         unselectedLabelStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        onTap: (value) {
-          setState(() {
-            selectedIndex = value;
-          });
+        onTap: (value) async {
+          if (value == 3) {
+            showCupertinoDialog(
+              context: context,
+              builder: (BuildContext ctx) {
+                return CupertinoAlertDialog(
+                  title: const Text('Please Confirm'),
+                  content: const Text('Are you sure you want to logout?'),
+                  actions: [
+                    CupertinoDialogAction(
+                      onPressed: () {
+                        setState(() async {
+                          await FirebaseAuth.instance.signOut();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginPage()),
+                          );
+                        });
+                      },
+                      child: const Text('Yes'),
+                    ),
+                    CupertinoDialogAction(
+                      onPressed: () {
+                        Navigator.of(ctx).pop();
+                      },
+                      child: const Text('No'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            setState(() {
+              selectedIndex = value;
+            });
+          }
         },
         items: [
           BottomNavigationBarItem(
@@ -73,23 +108,13 @@ class _AppMainScreenState extends State<AppMainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              selectedIndex == 3 ? Iconsax.setting_21 : Iconsax.setting_2,
+              selectedIndex == 3 ? Iconsax.logout : Iconsax.logout,
             ),
-            label: "Setting",
+            label: "Logout",
           ),
         ],
       ),
       body: page[selectedIndex],
-    );
-  }
-
-  navBarPage(iconName) {
-    return Center(
-      child: Icon(
-        iconName,
-        size: 100,
-        color: kprimaryColor,
-      ),
     );
   }
 }

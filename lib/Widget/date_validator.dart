@@ -179,13 +179,15 @@ class _DateValidatorWidgetState extends State<DateValidatorWidget> {
                                       },
                                     );
                                   },
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(CupertinoIcons.calendar,
-                                          color: kprimaryColor),
-                                      SizedBox(width: 8),
-                                      Text(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
+                                      const SizedBox(width: 8),
+                                      const Text(
                                         'Change Date',
                                         style: TextStyle(
                                             color: Colors.black,
@@ -199,13 +201,15 @@ class _DateValidatorWidgetState extends State<DateValidatorWidget> {
                                     selectTime(
                                         context, widget.recipeId, widget.date);
                                   },
-                                  child: const Row(
+                                  child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(CupertinoIcons.time,
-                                          color: kprimaryColor),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary),
                                       SizedBox(width: 8),
-                                      Text(
+                                      const Text(
                                         'Change Time',
                                         style: TextStyle(
                                             color: Colors.black,

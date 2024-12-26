@@ -1,63 +1,99 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:recipe_app/services/user_service.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   List<String> _favoriteIds = [];
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   List<String> get favorites => _favoriteIds;
 
   FavoriteProvider() {
-    loadFavorites();
+    _auth.authStateChanges().listen((user) {
+      // Reload favorites when user changes
+      if (user == null) {
+        _favoriteIds = [];
+      } else {
+        loadFavorites();
+      }
+      notifyListeners();
+    });
   }
-  // toggle favorites states
+
+  // Toggle favorite state
   void toggleFavorite(DocumentSnapshot product) async {
     String productId = product.id;
+    String? userId = _auth.currentUser?.uid;
+
+    if (userId == null) {
+      throw Exception("User not logged in");
+    }
+
     if (_favoriteIds.contains(productId)) {
       _favoriteIds.remove(productId);
-      await _removeFavorite(productId); // remove from favorite
+      await _removeFavorite(productId, userId); // Remove from favorites
     } else {
       _favoriteIds.add(productId);
-      await _addFavorite(productId); // add to favorite
+      await _addFavorite(productId, userId); // Add to favorites
     }
     notifyListeners();
   }
 
-  // chek if a product is favorited
-  bool isExist(DocumentSnapshot prouct) {
-    return _favoriteIds.contains(prouct.id);
+  // Check if a product is favorited
+  bool isExist(DocumentSnapshot product) {
+    return _favoriteIds.contains(product.id);
   }
 
   // add favorites to firestore
-  Future<void> _addFavorite(String productId) async {
+  Future<void> _addFavorite(String productId, String userId) async {
     try {
-      await _firestore.collection("userFavorite").doc(productId).set({
-        'isFavorite':
-            true, // create the userFavorite collection and add item as favorites inf firestore
+      await _firestore
+          .collection("userFavorite")
+          .doc(
+              "${userId}_$productId") // Unique document ID based on user and product
+          .set({
+        'userId': userId,
+        'productId': productId,
+        'isFavorite': true,
       });
     } catch (e) {
-      print(e.toString());
+      throw Exception(e.toString());
     }
   }
 
   // Remove favorite from firestore
-  Future<void> _removeFavorite(String productId) async {
+  Future<void> _removeFavorite(String productId, String userId) async {
     try {
-      await _firestore.collection("userFavorite").doc(productId).delete();
+      await _firestore
+          .collection("userFavorite")
+          .doc("${userId}_$productId")
+          .delete();
     } catch (e) {
-      print(e.toString());
+      throw Exception(e.toString());
     }
   }
 
   // load favories from firestore (store favorite or not)
   Future<void> loadFavorites() async {
     try {
-      QuerySnapshot snapshot =
-          await _firestore.collection("userFavorite").get();
-      _favoriteIds = snapshot.docs.map((doc) => doc.id).toList();
+      String? userId = _auth.currentUser?.uid;
+
+      if (userId == null) {
+        throw Exception("User not logged in");
+      }
+
+      QuerySnapshot snapshot = await _firestore
+          .collection("userFavorite")
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      _favoriteIds =
+          snapshot.docs.map((doc) => doc['productId'] as String).toList();
     } catch (e) {
-      print(e.toString());
+      throw Exception(e.toString());
     }
     notifyListeners();
   }

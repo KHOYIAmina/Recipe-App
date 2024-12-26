@@ -117,32 +117,32 @@ class _CalendarDialogState extends State<CalendarEditDialog> {
                 firstDay: DateTime.utc(2000, 1, 1),
                 lastDay: DateTime.utc(2025, 12, 31),
                 focusedDay: _focusedDay,
-                headerStyle: const HeaderStyle(
+                headerStyle: HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
                   titleTextStyle: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     fontSize: 20,
                   ),
                   leftChevronIcon: Icon(
                     Icons.arrow_left,
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 30,
                   ),
                   rightChevronIcon: Icon(
                     Icons.arrow_right,
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 30,
                   ),
                 ),
-                calendarStyle: const CalendarStyle(
-                  todayDecoration: BoxDecoration(
+                calendarStyle:  CalendarStyle(
+                  todayDecoration: const BoxDecoration(
                     color: Colors.grey,
                     shape: BoxShape.circle,
                   ),
                   selectedDecoration: BoxDecoration(
-                    color: kprimaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -150,8 +150,8 @@ class _CalendarDialogState extends State<CalendarEditDialog> {
                   selectedBuilder: (context, day, focusedDay) {
                     return Container(
                       margin: const EdgeInsets.all(6),
-                      decoration: const BoxDecoration(
-                        color: kprimaryColor,
+                      decoration:  BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
@@ -200,7 +200,7 @@ class _CalendarDialogState extends State<CalendarEditDialog> {
                           }
                         : null, // Disable the button if the date hasn't changed
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kprimaryColor,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 5,
@@ -224,12 +224,12 @@ class _CalendarDialogState extends State<CalendarEditDialog> {
                       backgroundColor: Colors.transparent,
                       elevation: 0,
                     ),
-                    child: const Text(
+                    child: Text(
                       "Cancel",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 17,
-                        color: kprimaryColor,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),

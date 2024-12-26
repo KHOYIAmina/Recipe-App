@@ -18,9 +18,9 @@ class _ViewAllItemsState extends State<ViewAllItems> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kbackgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: kbackgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         automaticallyImplyLeading: false, // it remove the appbar back button
         elevation: 0,
         actions: [
