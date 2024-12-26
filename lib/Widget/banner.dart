@@ -5,7 +5,8 @@ import 'package:recipe_app/Views/meal_plan_screen.dart';
 import 'package:recipe_app/services/notifs_service.dart';
 
 class BannerToExplore extends StatefulWidget {
-  const BannerToExplore({super.key});
+  final VoidCallback onRefresh;
+  const BannerToExplore({super.key, required this.onRefresh});
 
   @override
   State<BannerToExplore> createState() => _BannerToExploreState();
@@ -24,8 +25,10 @@ class _BannerToExploreState extends State<BannerToExplore> {
     try {
       List<Map<String, dynamic>>? mostRecent =
           await notifsService.fetchMostRecentDateWithRecipe();
-      recent = mostRecent.first;
-      print('·············: $recent');
+      setState(() {
+        recent = mostRecent.first;
+      });
+      widget.onRefresh();
     } catch (e) {
       print('Error: $e');
     }
@@ -172,9 +175,7 @@ class _BannerToExploreState extends State<BannerToExplore> {
                           backgroundColor: Colors.white,
                           elevation: 0,
                         ),
-                        onPressed: () {
-                          
-                        },
+                        onPressed: () {},
                         child: const Text(
                           "Make plans",
                           style: TextStyle(

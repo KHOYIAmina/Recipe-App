@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -15,10 +17,12 @@ import 'package:recipe_app/services/quantity.dart';
 class RecipeDetailScreen extends StatefulWidget {
   final DocumentSnapshot<Object?> documentSnapshot;
   final String previousPage;
+  final Map<String, dynamic>? DataMeals;
   const RecipeDetailScreen({
     super.key,
     required this.documentSnapshot,
     required this.previousPage,
+    this.DataMeals,
   });
 
   @override
@@ -26,18 +30,135 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  final NotifsService providerNotifs = NotifsService();
+  final NotifsService notifsService = NotifsService();
+  bool isTimerRunning = false;
+  int remainingTimeInSeconds = 0; // Store remaining time in seconds
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting();
+    _initializeSelectedDates();
+    _loadTimerState(); // Load the saved timer state
+
     List<double> baseAmounts = widget.documentSnapshot['ingredientsAmount']
         .map<double>((amount) => double.parse(amount.toString()))
         .toList();
     Provider.of<QuantityProvider>(context, listen: false)
         .setBaseIngredientAmounts(baseAmounts);
-    initializeDateFormatting();
-    _initializeSelectedDates();
+  }
+
+  void _saveTimerState() {
+    FirebaseFirestore.instance
+        .collection('timers')
+        .doc(widget.documentSnapshot.id)
+        .set({
+      'remainingTimeInSeconds': remainingTimeInSeconds,
+      'isTimerRunning': isTimerRunning,
+      'lastUpdated': DateTime.now().toIso8601String(),
+    }, SetOptions(merge: true));
+  }
+
+  void _loadTimerState() async {
+    DocumentSnapshot timerSnapshot = await FirebaseFirestore.instance
+        .collection('timers')
+        .doc(widget.documentSnapshot.id)
+        .get();
+
+    if (timerSnapshot.exists) {
+      Map<String, dynamic> data = timerSnapshot.data() as Map<String, dynamic>;
+      setState(() {
+        isTimerRunning = data['isTimerRunning'] ?? false;
+        remainingTimeInSeconds = data['remainingTimeInSeconds'] ?? 0;
+
+        if (isTimerRunning) {
+          DateTime lastUpdated = DateTime.parse(data['lastUpdated']);
+          int elapsedSeconds = DateTime.now().difference(lastUpdated).inSeconds;
+          remainingTimeInSeconds -= elapsedSeconds;
+
+          if (remainingTimeInSeconds > 0) {
+            _startTimer();
+          } else {
+            _finishTimer(); // Handle timer completion
+          }
+        }
+      });
+    }
+  }
+
+  void _startTimer() {
+    setState(() {
+      isTimerRunning = true;
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (remainingTimeInSeconds > 0) {
+          remainingTimeInSeconds--;
+          _saveTimerState(); // Sauvegarde l'état à chaque seconde
+        } else {
+          _stopTimer(); // Arrête le minuteur si le temps est écoulé
+        }
+      });
+    });
+  }
+
+  void _pauseTimer() {
+    setState(() {
+      isTimerRunning = false;
+    });
+    _timer.cancel();
+    _saveTimerState();
+  }
+
+  void _stopTimer() {
+    _timer.cancel();
+    setState(() {
+      isTimerRunning = false;
+      remainingTimeInSeconds = 0;
+    });
+
+    _saveTimerState();
+  }
+
+  void _finishTimer() {
+    _timer.cancel();
+    setState(() {
+      isTimerRunning = false;
+      remainingTimeInSeconds = 0;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Cooking time is complete!")),
+    );
+
+    // Delete the timer document from Firestore after timer finishes
+    _deleteTimerState();
+
+    _saveTimerState();
+  }
+
+  void _deleteTimerState() async {
+    try {
+      // Delete the timer document from Firestore
+      await FirebaseFirestore.instance
+          .collection('timers')
+          .doc(widget.documentSnapshot.id)
+          .delete();
+    } catch (e) {
+      // Handle any errors if the deletion fails
+      print("Error deleting timer state: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_timer.isActive) {
+      _saveTimerState();
+      _timer.cancel();
+    }
+    super.dispose();
   }
 
   List<DateTime> selectedDates = [];
@@ -61,7 +182,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   void _initializeSelectedDates() async {
     try {
-      List<DateTime> dates = await providerNotifs
+      List<DateTime> dates = await notifsService
           .getSelectedDatesForRecipe(widget.documentSnapshot.id);
       setState(() {
         selectedDates = dates;
@@ -334,54 +455,127 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  FloatingActionButton startCookingAndFavoriteButton(
-      FavoriteService provider) {
+  FloatingActionButton startCookingAndFavoriteButton(FavoriteService provider) {
     return FloatingActionButton.extended(
       backgroundColor: Colors.transparent,
-      elevation: 0,
-      onPressed: () {},
+      elevation: 0, // This ensures no shadow is applied
+      onPressed: () {
+        if (!isTimerRunning && remainingTimeInSeconds > 0) {
+          // Si le timer est arrêté et qu'il reste du temps, démarrer le minuteur
+          setState(() {
+            isTimerRunning = true;
+            _startTimer();
+          });
+        } else if (isTimerRunning) {
+          // Si le timer est en cours, mettre en pause
+          setState(() {
+            isTimerRunning = false;
+          });
+          _pauseTimer(); // Mettre le minuteur en pause
+        } else {
+          // Si aucun minuteur n'est en cours et qu'il n'y a pas de temps restant
+          setState(() {
+            remainingTimeInSeconds = widget.documentSnapshot['time'] * 60;
+            isTimerRunning = true;
+          });
+          _startTimer(); // Démarrer un nouveau minuteur
+        }
+      },
       label: Row(
         children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 100, vertical: 13),
-                foregroundColor: Colors.white),
-            onPressed: () {},
-            child: const Text(
-              "Start Cooking",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
+          SizedBox(
+            width: 300,
+            height: 50,
+            child: Container(
+              decoration: BoxDecoration(
+                color: kprimaryColor,
+                borderRadius: BorderRadius.circular(13.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Icône de pause ou lecture
+                  if (isTimerRunning)
+                    IconButton(
+                      icon: const Icon(
+                        Iconsax.pause,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        _pauseTimer();
+                      },
+                    )
+                  else if (remainingTimeInSeconds > 0)
+                    IconButton(
+                      icon: const Icon(
+                        Iconsax.play,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        _startTimer();
+                      },
+                    ),
+                  const SizedBox(width: 10),
+                  // Texte affichant l'état actuel du minuteur
+                  Text(
+                    isTimerRunning
+                        ? "Cooking Time: ${_formatElapsedTime(remainingTimeInSeconds)}"
+                        : remainingTimeInSeconds > 0
+                            ? "Timer Paused: ${_formatElapsedTime(remainingTimeInSeconds)}"
+                            : "Start Cooking",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+
+                  // Icône de stop
+                  (isTimerRunning || remainingTimeInSeconds > 0)
+                      ? IconButton(
+                          icon: const Icon(
+                            Iconsax.stop,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            _stopTimer();
+                          },
+                        )
+                      : const SizedBox
+                          .shrink(), // Ne rien afficher si la condition n'est pas remplie
+
+                  // Espacement avant l'icône de favori
+                  const SizedBox(width: 10),
+
+                  // Icône de favori
+                ],
               ),
             ),
           ),
-          const SizedBox(width: 10),
           IconButton(
-            style: IconButton.styleFrom(
-              shape: CircleBorder(
-                side: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 2,
-                ),
-              ),
-            ),
-            onPressed: () {
-              provider.toggleFavorite(widget.documentSnapshot);
-            },
             icon: Icon(
               provider.isExist(widget.documentSnapshot)
-                  ? Iconsax.heart5
-                  : Iconsax.heart,
+                  ? Iconsax.heart5 // Cœur rempli (favori)
+                  : Iconsax.heart, // Cœur vide (non favori)
               color: provider.isExist(widget.documentSnapshot)
-                  ? Colors.red
-                  : Colors.black,
+                  ? Colors.red // Couleur rouge si c'est un favori
+                  : Colors.black, // Couleur noire si ce n'est pas un favori
               size: 22,
             ),
+            onPressed: () {
+              provider.toggleFavorite(
+                  widget.documentSnapshot); // Bascule l'état du favori
+            },
           ),
         ],
       ),
     );
+  }
+
+  String _formatElapsedTime(int remainingTimeInSeconds) {
+    int minutes = remainingTimeInSeconds ~/ 60;
+    int seconds = remainingTimeInSeconds % 60;
+    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
   }
 }

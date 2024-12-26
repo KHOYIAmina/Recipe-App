@@ -30,6 +30,9 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
   Query get allRecipes => FirebaseFirestore.instance.collection("Recipe-App");
   Query get selectedRecipes =>
       category == "All" ? allRecipes : fileteredRecipes;
+  void refreshPage() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +52,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                     headerParts('walid'),
                     mySearchBar(),
                     // for banner
-                    const BannerToExplore(),
+                    BannerToExplore(onRefresh: refreshPage),
                     const Padding(
                       padding: EdgeInsets.symmetric(
                         vertical: 20,
