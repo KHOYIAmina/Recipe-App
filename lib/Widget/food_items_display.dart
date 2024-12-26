@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/favorite_provider.dart';
+import 'package:recipe_app/services/favorite_service.dart';
 import 'package:recipe_app/Views/recipe_detail_screen.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -10,7 +10,7 @@ class FoodItemsDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = FavoriteProvider.of(context);
+    final provider = FavoriteService.of(context);
     return GestureDetector(
       onTap: () {
         Navigator.push(

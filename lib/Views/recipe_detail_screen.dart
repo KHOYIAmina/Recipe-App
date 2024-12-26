@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/favorite_provider.dart';
-import 'package:recipe_app/Provider/notifs_provider.dart';
-import 'package:recipe_app/Provider/quantity.dart';
+import 'package:recipe_app/services/favorite_service.dart';
+import 'package:recipe_app/services/notifs_service.dart';
+import 'package:recipe_app/services/quantity.dart';
 import 'package:recipe_app/Utils/constants.dart';
 import 'package:recipe_app/Widget/calendar_dialog.dart';
 import 'package:recipe_app/Widget/my_icon_button.dart';
@@ -25,7 +25,7 @@ class RecipeDetailScreen extends StatefulWidget {
 }
 
 class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
-  final NotifsProvider providerNotifs = NotifsProvider();
+  final NotifsService providerNotifs = NotifsService();
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = FavoriteProvider.of(context);
+    final provider = FavoriteService.of(context);
     final quantityProvider = Provider.of<QuantityProvider>(context);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -333,8 +333,7 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
     );
   }
 
-  FloatingActionButton startCookingAndFavoriteButton(
-      FavoriteProvider provider) {
+  FloatingActionButton startCookingAndFavoriteButton(FavoriteService provider) {
     return FloatingActionButton.extended(
       backgroundColor: Colors.transparent,
       elevation: 0,

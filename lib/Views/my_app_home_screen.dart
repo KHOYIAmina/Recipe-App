@@ -6,6 +6,7 @@ import 'package:recipe_app/Widget/food_items_display.dart';
 import 'package:recipe_app/Widget/my_icon_button.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 
 class MyAppHomeScreen extends StatefulWidget {
   const MyAppHomeScreen({super.key});
@@ -16,6 +17,29 @@ class MyAppHomeScreen extends StatefulWidget {
 
 class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
   String category = "All";
+  NotifsService notifsService = NotifsService();
+  List<Map<String, dynamic>>? mostRecentDateWithRecipe;
+  @override
+  void initState() {
+    super.initState();
+    fetchAndPrintMostRecentDate();
+  }
+
+  void fetchAndPrintMostRecentDate() async {
+    try {
+      mostRecentDateWithRecipe =
+          await notifsService.fetchMostRecentDateWithRecipe();
+      Map<String, dynamic> recent = mostRecentDateWithRecipe!.first;
+      if (mostRecentDateWithRecipe != null) {
+        print(recent['timeRecipe']);
+      } else {
+        print('No recent date found.');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   // for category
   final CollectionReference categoriesItems =
       FirebaseFirestore.instance.collection("App-Category");
@@ -67,7 +91,7 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
-                          "Quick & Easy",
+                          'Quick & Easy',
                           style: TextStyle(
                             fontSize: 20,
                             letterSpacing: 0.1,

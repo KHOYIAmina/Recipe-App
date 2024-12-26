@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/notifs_provider.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 import 'package:recipe_app/Utils/constants.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
@@ -23,7 +23,7 @@ class _CalendarDialogState extends State<CalendarDialog> {
   late List<DateTime> _tempSelectedDays;
   late List<DateTime> _datesBeforeToday;
   DateTime _focusedDay = DateTime.now();
-  final NotifsProvider providerNotifs = NotifsProvider();
+  final NotifsService providerNotifs = NotifsService();
 
   @override
   void initState() {

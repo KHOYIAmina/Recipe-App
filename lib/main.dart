@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/favorite_provider.dart';
-import 'package:recipe_app/Provider/quantity.dart';
+import 'package:recipe_app/services/favorite_service.dart';
+import 'package:recipe_app/services/quantity.dart';
 import 'package:provider/provider.dart';
 import 'package:recipe_app/Views/auth/login_screen.dart';
 import 'package:recipe_app/Views/auth/welcome_screen.dart';
@@ -14,7 +14,7 @@ void main() async {
   // runApp(const MyApp());
   runApp(MultiProvider(providers: [
     // for favorite provider
-    ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+    ChangeNotifierProvider(create: (_) => FavoriteService()),
     // for quantity provider
     ChangeNotifierProvider(create: (_) => QuantityProvider()),
     // for theme provider
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
     // return MultiProvider(
     //   providers: [
     //     // for favorite provider
-    //     ChangeNotifierProvider(create: (_) => FavoriteProvider()),
+    //     ChangeNotifierProvider(create: (_) => FavoriteService()),
     //     // for quantity provider
     //     ChangeNotifierProvider(create: (_) => QuantityProvider()),
     //     // for theme provider

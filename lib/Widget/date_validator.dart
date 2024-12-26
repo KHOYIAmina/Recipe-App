@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:recipe_app/Provider/notifs_provider.dart';
+import 'package:recipe_app/services/notifs_service.dart';
 import 'package:recipe_app/Utils/constants.dart';
 import 'package:recipe_app/Widget/calendar_edit_dialog.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -24,7 +24,7 @@ class DateValidatorWidget extends StatefulWidget {
 }
 
 class _DateValidatorWidgetState extends State<DateValidatorWidget> {
-  final NotifsProvider providerNotifs = NotifsProvider();
+  final NotifsService providerNotifs = NotifsService();
   late ValueNotifier<bool> isDateValidNotifier;
   late DateTime initialDate;
   Timer? timer;

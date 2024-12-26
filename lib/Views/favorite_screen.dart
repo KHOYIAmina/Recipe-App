@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:recipe_app/Provider/favorite_provider.dart';
+import 'package:recipe_app/services/favorite_service.dart';
 import 'package:recipe_app/Utils/constants.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -14,7 +14,7 @@ class FavoriteScreen extends StatefulWidget {
 class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
-    final provider = FavoriteProvider.of(context);
+    final provider = FavoriteService.of(context);
     final favoriteItems = provider.favorites;
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -28,7 +28,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           ),
         ),
       ),
-     
       body: favoriteItems.isEmpty
           ? const Center(
               child: Text(
