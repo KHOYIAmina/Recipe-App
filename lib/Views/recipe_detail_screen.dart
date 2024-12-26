@@ -461,24 +461,21 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       elevation: 0, // This ensures no shadow is applied
       onPressed: () {
         if (!isTimerRunning && remainingTimeInSeconds > 0) {
-          // Si le timer est arrêté et qu'il reste du temps, démarrer le minuteur
           setState(() {
             isTimerRunning = true;
             _startTimer();
           });
         } else if (isTimerRunning) {
-          // Si le timer est en cours, mettre en pause
           setState(() {
             isTimerRunning = false;
           });
-          _pauseTimer(); // Mettre le minuteur en pause
+          _pauseTimer();
         } else {
-          // Si aucun minuteur n'est en cours et qu'il n'y a pas de temps restant
           setState(() {
             remainingTimeInSeconds = widget.documentSnapshot['time'] * 60;
             isTimerRunning = true;
           });
-          _startTimer(); // Démarrer un nouveau minuteur
+          _startTimer();
         }
       },
       label: Row(
@@ -494,7 +491,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Icône de pause ou lecture
                   if (isTimerRunning)
                     IconButton(
                       icon: const Icon(
@@ -516,7 +512,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       },
                     ),
                   const SizedBox(width: 10),
-                  // Texte affichant l'état actuel du minuteur
                   Text(
                     isTimerRunning
                         ? "Cooking Time: ${_formatElapsedTime(remainingTimeInSeconds)}"
@@ -530,8 +525,6 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-
-                  // Icône de stop
                   (isTimerRunning || remainingTimeInSeconds > 0)
                       ? IconButton(
                           icon: const Icon(
@@ -542,13 +535,8 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             _stopTimer();
                           },
                         )
-                      : const SizedBox
-                          .shrink(), // Ne rien afficher si la condition n'est pas remplie
-
-                  // Espacement avant l'icône de favori
+                      : const SizedBox.shrink(),
                   const SizedBox(width: 10),
-
-                  // Icône de favori
                 ],
               ),
             ),
@@ -556,16 +544,15 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
           IconButton(
             icon: Icon(
               provider.isExist(widget.documentSnapshot)
-                  ? Iconsax.heart5 // Cœur rempli (favori)
-                  : Iconsax.heart, // Cœur vide (non favori)
+                  ? Iconsax.heart5
+                  : Iconsax.heart,
               color: provider.isExist(widget.documentSnapshot)
-                  ? Colors.red // Couleur rouge si c'est un favori
-                  : Colors.black, // Couleur noire si ce n'est pas un favori
+                  ? Colors.red
+                  : Colors.black,
               size: 22,
             ),
             onPressed: () {
-              provider.toggleFavorite(
-                  widget.documentSnapshot); // Bascule l'état du favori
+              provider.toggleFavorite(widget.documentSnapshot);
             },
           ),
         ],

@@ -119,7 +119,6 @@ class _MyAppHomeScreenState extends State<MyAppHomeScreen> {
                       ),
                     );
                   }
-                  // it means if snapshot has date then show the date otherwise show the progress bar
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
